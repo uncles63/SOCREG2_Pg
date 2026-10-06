@@ -27,7 +27,7 @@ jobs:
         run: rm -f composer.lock
 
       - name: Install Laravel dependencies
-        run: php composer.phar install --no-interaction --no-dev --prefer-dist --optimize-autoloader
+        run: php composer.phar install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Install Filament
         run: php composer.phar require filament/filament:"^3.2" --no-interaction --prefer-dist
@@ -41,17 +41,20 @@ jobs:
       - name: Create ZIP archive
         run: |
           rm -rf .git
-          zip -r social-register-built.zip .
+          zip -r social-register-built.zip . \
             -x "node_modules/*" \
             -x ".env.example" \
             -x "tests/*" \
             -x "storage/framework/cache/*" \
             -x "storage/framework/sessions/*" \
-            -x "storage/framework/views/*"
+            -x "storage/framework/views/*" \
+            -x ".github/*" \
+            -x "composer.lock"
 
       - name: Upload built project
         uses: actions/upload-artifact@v4
         with:
-           name: social-register-built
-           path: social-register-built.zip
-           retention-days: 30
+          name: social-register-built
+          path: social-register-built.zip
+          retention-days: 30
+
