@@ -1,0 +1,57 @@
+name: Build project
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo, pdo_pgsql, zip, fileinfo, mbstring, openssl, tokenizer, xml, ctype, json, bcmath
+          coverage: none
+
+      - name: Install Composer
+        run: php -r "copy('https://getcomposer.org/composer.phar', 'composer.phar');"
+
+      - name: Remove existing composer.lock
+        run: rm -f composer.lock
+
+      - name: Install Laravel dependencies
+        run: php composer.phar install --no-interaction --no-dev --prefer-dist --optimize-autoloader
+
+      - name: Install Filament
+        run: php composer.phar require filament/filament:"^3.2" --no-interaction --prefer-dist
+
+      - name: Install PhpSpreadsheet
+        run: php composer.phar require phpoffice/phpspreadsheet:"^3.3" --no-interaction --prefer-dist
+
+      - name: Clear dev dependencies
+        run: php composer.phar install --no-interaction --no-dev --prefer-dist --optimize-autoloader
+
+      - name: Zip project with vendor
+        run: |
+          rm -rf .git
+          zip -r social-register-built.zip . \
+            -x "node_modules/*" \
+            -x ".env.example" \
+            -x "tests/*" \
+            -x "storage/framework/cache/*" \
+            -x "storage/framework/sessions/*" \
+            -x "storage/framework/views/*"
+
+      - name: Upload built project
+        uses: actions/upload-artifact@v4
+        with:
+          name: social-register-built
+          path: social-register-built.zip
+          retention-days: 30
