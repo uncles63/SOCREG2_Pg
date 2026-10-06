@@ -38,10 +38,10 @@ jobs:
       - name: Clear dev dependencies
         run: php composer.phar install --no-interaction --no-dev --prefer-dist --optimize-autoloader
 
-      - name: Zip project with vendor
+      - name: Create ZIP archive
         run: |
           rm -rf .git
-          zip -r social-register-built.zip . \
+          zip -r social-register-built.zip .
             -x "node_modules/*" \
             -x ".env.example" \
             -x "tests/*" \
@@ -52,6 +52,6 @@ jobs:
       - name: Upload built project
         uses: actions/upload-artifact@v4
         with:
-          name: social-register-built
-          path: social-register-built.zip
-          retention-days: 30
+           name: social-register-built
+           path: social-register-built.zip
+           retention-days: 30
